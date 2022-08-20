@@ -13,11 +13,17 @@ void dummyFunc(int nbI = 100, int nbJ = 100, const IProgressReporter& reporter =
     auto mainHandler = reporter.startReport("Dummy", nbI);
     for (int i = 0; i < nbI; i++)
     {
+        if (reporter.isCanceled())
+            break;
+
         std::string label = std::string("Dummy internal i:") + std::to_string(i);
         auto internalHAndler = reporter.startReport(label, nbJ);
         for (int j = 0; j < nbJ; j++)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            if (reporter.isCanceled())
+                break;
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             internalHAndler->increment();
         }
 

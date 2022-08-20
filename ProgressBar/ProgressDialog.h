@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QWidget>
 #include <QProgressbar>
+#include <QDialogButtonBox>
 
 #include <thread>
 
@@ -50,7 +51,10 @@ private:
 	SimpleProgressReporter m_handler;
 
 	int m_firstBarId = 0;
-	QVBoxLayout* m_mainLayout = nullptr;
+	QVBoxLayout* m_barLayout = nullptr;
+	QWidget* m_barsWidget = nullptr;
+	QDialogButtonBox* m_buttonBox = nullptr;
+	ProgressWidget* m_waitEndBar = nullptr;
 
 	std::unordered_map<int, ProgressWidget*> m_bars;
 
