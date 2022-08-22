@@ -9,7 +9,7 @@ ProgressWidget::ProgressWidget(const std::string& name, int nbSteps, QWidget* pa
 	layout->addWidget(new QLabel(QString::fromStdString(name), this));
 
 	m_bar = new QProgressBar(this);
-	m_bar->setMaximum(nbSteps);
+	m_bar->setRange(0, nbSteps);
 	layout->addWidget(m_bar);
 }
 
@@ -22,7 +22,8 @@ ProgressWidget::~ProgressWidget()
 
 void ProgressWidget::incrementBar(int nbStep)
 {
-	m_bar->setValue(m_bar->value() + nbStep);
+	m_currentValue += nbStep;
+	m_bar->setValue(m_currentValue);
 }
 
 ProgressDialog::ProgressDialog(QWidget* parent) : QDialog(parent)

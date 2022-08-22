@@ -5,8 +5,7 @@
 #include <QWidget>
 #include <QProgressbar>
 #include <QDialogButtonBox>
-
-#include <thread>
+#include <QThread>
 
 class QHBoxLayout;
 class QVBoxLayout;
@@ -23,6 +22,7 @@ public:
 	void incrementBar(int nbStep);
 
 private:
+	int m_currentValue = 0;
 	QProgressBar* m_bar = nullptr;
 	QLabel* m_label = nullptr;
 	QHBoxLayout* m_layout = nullptr;
@@ -58,14 +58,22 @@ private:
 
 	std::unordered_map<int, ProgressWidget*> m_bars;
 
-	std::thread m_thread;
+	QThread* m_thread = nullptr;
 };
 
 template<class Function, class... Args>
 inline void ProgressDialog::exec(Function&& f, Args &&... args)
 {
 	show();
-	m_thread = std::thread(f, args...);
+	if (m_thread != nullptr)
+	{
+		//stop thread
+		m_thread->exit();
+		delete m_thread;
+	}
+	m_thread = QThread::create(f, args...);
+	m_thread->start();
+	QObject::connect(m_thread, &QThread::finished, this, &QDialog::close);
 	QDialog::exec();
-	m_thread.join();
+	m_thread->wait();
 }

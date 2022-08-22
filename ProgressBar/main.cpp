@@ -27,7 +27,7 @@ void dummyFunc(int nbI = 100, int nbJ = 100, const IProgressReporter& reporter =
             if (reporter.isCanceled())
                 break;
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
             internalHAndler->increment();
         }
 
@@ -52,7 +52,6 @@ void dummyFuncWithOmp(int nbI = 100, int nbJ = 100, const IProgressReporter& rep
         if (reporter.isCanceled())
             break;
 
-        std::cout << "Thread : " << i << std::endl;
         std::string label = std::string("Dummy internal i:") + std::to_string(i);
         auto internalHAndler = reporter.startReport(label, nbJ);
         internalHAndler->setAutoClose(false);
@@ -76,6 +75,27 @@ void startComputationWithomp()
     dialog.exec(dummyFuncWithOmp, 10, 10, std::ref(handler));
 }
 
+void startComputationWithQuestion()
+{
+    ProgressDialog dialog;
+    dialog.show();
+    auto& reporter = dialog.getReporter();
+
+    auto mainHandler = reporter.startReport("Main proc", 2);
+    dialog.exec(dummyFunc, 2, 5, std::ref(reporter));
+    mainHandler->increment();
+
+    auto answer = QMessageBox::question(nullptr, "This is a question.", "Some event require you to answer of you want to continue.");
+    if (answer != QMessageBox::StandardButton::Yes)
+    {
+        return;
+    }
+
+    dialog.exec(dummyFunc, 2, 5, std::ref(reporter));
+    mainHandler->increment();
+
+}
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -95,7 +115,9 @@ int main(int argc, char *argv[])
     QObject::connect(button2, &QPushButton::clicked, &startComputationWithomp);
     layout->addWidget(button2);
 
-
+    QPushButton* button3 = new QPushButton("Test with question");
+    QObject::connect(button3, &QPushButton::clicked, &startComputationWithQuestion);
+    layout->addWidget(button3);
 
     mainWindow.show();
 
